@@ -149,9 +149,11 @@
 
 //Enviromental variables
 require('dotenv').config();
+const jwt = require('express-jwt');
 
 //Mongo connection
 require('./db/mongoConnection');
+
 
 const express = require('express');
 
@@ -159,7 +161,12 @@ const express = require('express');
 // const userController = require('./controllers/users');
 
 //Controller for Version 2
-const userMongoController = require('./controllers/usersMongo');
+// const userMongoController = require('./controllers/usersMongo');
+
+//Controller for version 3 (Multitenancy)
+const userSignUP = require('./controllers/userSignUp');
+const tasksController = require('./controllers/tasks');
+const jwtMiddleware = require('./util/jwtMiddleware');
 
 const app = express();
 
@@ -182,19 +189,41 @@ app.use(express.json());
 
 
 //Version 2 with mongoDB
-app.get('/api/v2/users', userMongoController.getAll);
+// app.get('/api/v2/users', userMongoController.getAll);
 
 
-app.get('/api/v2/users/:id', userMongoController.getOne);
+// app.get('/api/v2/users/:id', userMongoController.getOne);
 
 
-app.post('/api/v2/users', userMongoController.save);
+// app.post('/api/v2/users', userMongoController.save);
 
 
-app.put('/api/v2/users/:id', userMongoController.update);
+// app.put('/api/v2/users/:id', userMongoController.update);
 
 
-app.delete('/api/v2/users/:id', userMongoController.remove);
+// app.delete('/api/v2/users/:id', userMongoController.remove);
+//################################################################################################################################################
+
+//###################################  Multitenancy API ##########################################################################################
+
+app.use('/tasks', jwt({ secret: 'topSecret', algorithms: ['HS256'] }));
+
+app.post('/register', userSignUP.register);
+app.post('/login', userSignUP.login);
+app.post('/tasks', tasksController.createTask);
+app.get('/tasks/me', tasksController.getMyTasks);
+app.get('/tasks/:id', tasksController.getSingleTask);
+app.patch('/tasks/:id', tasksController.updateTask);
+app.delete('/tasks/:id', tasksController.removeTask);
+
+
+app.get('/abc', jwtMiddleware, (req, res) => {
+    res.send(req.user);
+
+
+})
+
+
 
 
 const port = process.env.PORT || 4000;
@@ -203,7 +232,4 @@ const port = process.env.PORT || 4000;
 app.listen(port, () => {
     console.log(`Server started at port ${port}`);
 })
-
-
-
 

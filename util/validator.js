@@ -35,3 +35,20 @@ exports.bookRule = {
     pages: 'required|integer|between:10,1500',
     yearReleased: 'required|integer'
 }
+
+exports.userRegisterRule = {
+    userName: 'required|string|alphaNumeric|length:30,3',
+    emailAddress: 'required|email',
+    password: 'required|string|alphaNumeric|length:30,5'
+}
+
+exports.userLoginRule = {
+    userName: 'required|string|alphaNumeric|length:30,3',
+    password: 'required|string|alphaNumeric|length:30,5'
+}
+
+
+exports.taskRule = {
+    title: 'required|string|length:50,3',
+    body: 'required|string|length:200,5'
+}
